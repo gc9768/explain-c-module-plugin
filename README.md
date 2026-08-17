@@ -28,13 +28,17 @@ Claude 解析指令 → 调用 explain-c-module skill
 
 **核心设计**：hook 提供“时机 + 事实”（何时 commit、改了哪些文件），skill 提供“方法”（怎么讲），中间靠注入的自然语言指令衔接。hook 无法直接调用 skill——这是 Claude Code 的架构约束，也是职责分离的体现。
 
-## 安装（二选一）
+## 安装（三选一）
 
 ### 方式一：marketplace 安装（推荐，可自动更新）
 
 ```bash
-# 在目标仓库根目录的 Claude Code 里执行：
+# 在目标仓库根目录的 Claude Code 里执行（GitHub，国际用户）：
 /plugin marketplace add gc9768/explain-c-module-plugin
+/plugin install explain-c-module@explain-c-module-market
+
+# 或 Gitee 镜像（国内用户，直连快）：
+/plugin marketplace add https://gitee.com/gc9768/explain-c-module-plugin
 /plugin install explain-c-module@explain-c-module-market
 ```
 
@@ -49,6 +53,25 @@ Claude 解析指令 → 调用 explain-c-module skill
 ```
 
 > 插件被拷贝到 `~/.claude/plugins/cache`，对源目录的后续修改不影响已安装版本，需重装刷新。
+
+### 方式三：其他 agent（Codex / Cursor / OpenCode 等）
+
+本 skill 符合 [agentskills.io](https://agentskills.io) 开放标准（SKILL.md 格式），可跨工具使用，但**自动触发 hook 是 Claude Code 独有机制**——其他 agent 只有手动触发。
+
+```bash
+# Codex：拷贝 skill 到其加载目录，新开会话自动加载
+git clone https://gitee.com/gc9768/explain-c-module-plugin
+mkdir -p ~/.codex/skills
+cp -r explain-c-module-plugin/skills/explain-c-module ~/.codex/skills/
+
+# 之后在对话中直接说："用 explain-c-module 讲解 xxx 目录"
+```
+
+| 能力 | Claude Code（插件） | 其他 agent（纯 skill） |
+|---|---|---|
+| 手动触发讲解 | ✅ `/explain-c-module` | ✅ 对话中说 skill 名 |
+| commit 自动触发 | ✅ hook 注入 | ❌ 无 hook 机制 |
+| 大提交守卫 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） |
 
 ### 依赖
 
@@ -86,7 +109,7 @@ git commit -m "feat: 摄像头预览优化"
 | `doc/explain/md/<模块名>.md` | 源文档（进 git 做 diff 评审） |
 | `doc/explain/html/<模块名>.html` | 阅读版（highlight.js 高亮、⚠️ 提示框、可折叠目录） |
 
-文档结构（8 节）：模块概述 / 关键数据结构 / 知识点讲解 / 逐段代码讲解 / ASCII 框图与时序 / 常见问题 / 帣习清单 / 延伸阅读。
+文档结构（8 节）：模块概述 / 关键数据结构 / 知识点讲解 / 逐段代码讲解 / ASCII 框图与时序 / 常见问题 / 学习清单 / 延伸阅读。
 
 ## 维护契约（改 skill 名必读）
 
@@ -110,7 +133,7 @@ explain-c-module-plugin/
 ├── skills/
 │   └── explain-c-module/  # 讲解方法论（纯指令型 skill）
 │       ├── SKILL.md
-│       ┑── references/    # 3 个模板/清单
+│       └── references/    # 3 个模板/清单
 ├── hooks/
 │   └── hooks.json         # hook 注册（安装后自动合并进 hooks 体系）
 └── scripts/
