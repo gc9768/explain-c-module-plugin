@@ -1,0 +1,18 @@
+{
+  "description": "git commit 触碰 C 源文件后，自动触发 explain-c-module skill 生成讲解文档",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/explain-commit.cjs"],
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

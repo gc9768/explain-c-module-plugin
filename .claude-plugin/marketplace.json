@@ -1,0 +1,15 @@
+{
+  "name": "explain-c-module-market",
+  "description": "嵌入式 C 代码讲解插件：commit 触碰 C 源码后自动生成中文学习文档（MD+HTML）",
+  "owner": {
+    "name": "gc9768",
+    "url": "https://github.com/gc9768"
+  },
+  "plugins": [
+    {
+      "name": "explain-c-module",
+      "source": "./",
+      "description": "git commit 触碰 C 源码 → 自动生成中文讲解文档（嵌入式向）"
+    }
+  ]
+}

@@ -1,14 +1,22 @@
 #!/usr/bin/env node
 /*
- * PostToolUse(Bash) hook — "git commit → auto explain"
+ * PostToolUse(Bash|PowerShell) hook — "git commit → auto explain-c-module"
  *
- * Fires after every Bash tool call. When the command was a real `git commit`
- * AND the new HEAD touched C/H source files, it injects an instruction back to
- * Claude to run the `explain-c-module` skill on those files.
+ * Bundled with the explain-c-module plugin. Fires after every Bash/PowerShell
+ * tool call. When the command was a real `git commit` AND the new HEAD touched
+ * C/H source files, it injects an instruction back to Claude to run the
+ * `explain-c-module` skill on those files.
+ *
+ * Guards:
+ *   - Large-commit guard: commits touching > MAX_C_FILES C/H files are treated
+ *     as bulk imports (e.g. `git init && git add . && git commit` on an
+ *     existing codebase) and are silently skipped — the skill is meant for
+ *     newly written code, not legacy imports.
  *
  * Stays silent (no stdout) when:
  *   - the command was not a `git commit`
  *   - the commit touched no .c/.h files (docs, configs, scripts…)
+ *   - the commit is a bulk import (guard above)
  *   - we're not in a git repo / HEAD can't be read
  *
  * Never throws — a hook must not break the tool flow.
@@ -25,6 +33,10 @@ const fs = require('fs');
 const COMMIT_RE = /\bgit\b.*\bcommit(?![\w-])/;
 
 const C_SOURCE_RE = /\.(c|h|cc|cpp|cxx|hpp|hh)$/i;
+
+// 大提交守卫阈值：单次 commit 触碰的 C/H 文件数超过此值即视为批量导入，跳过讲解。
+// 小型脚手架首提交(几个文件)仍是"新代码"，照常讲解。
+const MAX_C_FILES = 30;
 
 function emit(obj) {
   process.stdout.write(JSON.stringify(obj));
@@ -71,6 +83,7 @@ function main() {
 
   const cFiles = files.filter((f) => C_SOURCE_RE.test(f));
   if (cFiles.length === 0) return; // nothing explainable
+  if (cFiles.length > MAX_C_FILES) return; // bulk import (init/mass vendor-drop), skip
 
   const list = cFiles.map((f) => `- ${f}`).join('\n');
 
