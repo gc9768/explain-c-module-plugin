@@ -1,7 +1,7 @@
 {
   "name": "explain-c-module",
   "displayName": "Explain C Module",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "面向初级嵌入式工程师的 C 模块讲解：git commit 触碰 C 源码后自动生成中文学习文档（MD+交互 HTML：Mermaid 图表+折叠面板+真实日志证据），讲清'为什么这样写'，提炼嵌入式/RTOS/CMake 知识点。",
   "author": {
     "name": "gc9768"

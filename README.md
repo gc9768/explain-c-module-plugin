@@ -1,6 +1,6 @@
 # explain-c-module 插件
 
-**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.1）。
+**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.2）。
 
 不止"做了什么"，更讲清**为什么这样写**——引用**真实工程证据**，配 **Mermaid 图表**，附**生僻语法小课堂**。
 
@@ -8,7 +8,7 @@
 
 AI 时代初级工程师常能"看懂每行代码"，却缺乏"手把手开发"才能积累的底层直觉。这个插件在每次 commit C 代码后，自动让 Claude 讲透新实现的模块。
 
-## v2.1 质量铁律（为什么生成的文档值得读）
+## v2.2 质量铁律（为什么生成的文档值得读）
 
 1. **实例优先，三级递降**：工程真实日志证据 → 行业经典案例 → 构造最小示例；禁止只讲抽象结论
 2. **每函数至少一图或一表**：时序图/状态图/流程图按内容选型；MD 用 ASCII，HTML 用 Mermaid 交互版
@@ -23,7 +23,9 @@ git commit（触碰 .c/.h）
   │
   ▼
 PostToolUse hook (scripts/explain-commit.cjs)
-  ├─ 正则识别真实 commit（排除 commit-tree/commit-graph）
+  ├─ 正则识别真实 commit（git 须为命令段开头；排除 commit-tree/--no-commit/引号内文本）
+  ├─ git rev-parse HEAD 取 sha；与 .claude/explain-commit.state 比对去重
+  │  （同一 HEAD 只注入一次——命令文本里恰好含 "git commit" 字样的 echo/grep 不再反复误触发）
   ├─ git diff-tree --root HEAD 列出本次提交文件
   ├─ 过滤 C 源文件；>30 个视为批量导入，静默跳过（防 init 风暴）
   │
@@ -47,18 +49,25 @@ Claude 解析指令 → 调用 explain-c-module skill
 /plugin marketplace add gc9768/explain-c-module-plugin
 /plugin install explain-c-module@explain-c-module-market
 
-# 或 Gitee 镜像（国内用户，直连快）：
-/plugin marketplace add https://gitee.com/gc9768/explain-c-module-plugin
+# 或 Gitee 镜像（.git 后缀走 git 协议；不带 .git 的 raw 直连在部分网络下会因
+# CDN 签名跳转报 "Invalid marketplace schema"，此时用下面的本地方式）：
+/plugin marketplace add https://gitee.com/gc9768/explain-c-module-plugin.git
 /plugin install explain-c-module@explain-c-module-market
 ```
 
 > 安装后如未生效，运行 `/reload-plugins`（会话中途安装需重载）。
+>
+> **国内网络排障**：Gitee raw 直连失败（`Invalid marketplace schema: expected object` /
+> `HTTP 404`）通常是 Gitee 的签名 CDN 跳转所致，不是仓库问题。解决办法见方式二——
+> 先 `git clone` 再 add 本地目录，最稳。
 
-### 方式二：本地试用
+### 方式二：本地试用（国内网络推荐）
 
 ```bash
-# 在 Claude Code 里直接添加本地目录为 marketplace：
-/plugin marketplace add D:/Work/.../explain-c-module-plugin
+# 先克隆（Gitee 直连快），再把本地目录添加为 marketplace：
+git clone https://gitee.com/gc9768/explain-c-module-plugin
+# 在 Claude Code 里：
+/plugin marketplace add <克隆到的路径>/explain-c-module-plugin
 /plugin install explain-c-module@explain-c-module-market
 ```
 
@@ -82,6 +91,7 @@ cp -r explain-c-module-plugin/skills/explain-c-module ~/.codex/skills/
 | 手动触发讲解 | ✅ `/explain-c-module` | ✅ 对话中说 skill 名 |
 | commit 自动触发 | ✅ hook 注入 | ❌ hook 机制各异，未内置 |
 | 大提交守卫 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） |
+| sha 去重 | ✅ 同一 HEAD 只讲一次 | — |
 
 ### 依赖
 
@@ -102,6 +112,8 @@ git commit -m "feat: 摄像头预览优化"
 
 **大提交守卫**：单次 commit 触碰 >30 个 C/H 文件时静默跳过。这防止 `git init && git add . && git commit` 导入存量大代码库时触发几百份讲解文档——那不是"新写的代码"，不在 skill 服务范围内。阈值在 `scripts/explain-commit.cjs` 顶部 `MAX_C_FILES` 可调。
 
+**sha 去重**（v2.2）：同一 HEAD 只注入一次讲解指令，已讲解的 sha 记在 `<仓库>/.claude/explain-commit.state`（建议把 `.claude/` 加入 `.gitignore`）。防的是：命令文本里恰好含 "git commit" 字样的 echo/grep/cat（没有真的 commit）反复误触发，对同一个旧提交一遍遍讲解。
+
 ### 手动触发
 
 ```
@@ -121,7 +133,7 @@ git commit -m "feat: 摄像头预览优化"
 
 ### 生成效果示例
 
-以一个 IPC 摄像头工程的 `ipc_record.c`（录像/回放模块）为例，v2.1 生成的文档包含：
+以一个 IPC 摄像头工程的 `ipc_record.c`（录像/回放模块）为例，v2.2 生成的文档包含：
 
 - **5 段真实工程证据**（带来源标注的崩溃断言、心跳日志、时间线）
 - **4 张 Mermaid 图**（数据流/竞态崩溃时序/录像状态机/回放切换时序）
@@ -151,6 +163,8 @@ skill 与 hook 是松耦合文本契约，改名需同步 **5 处**：
 
 验证：`grep -ri "旧名" 插件目录` 应只剩 `doc/explain/` 输出路径（产物目录不改，改了孤儿化历史文档）。
 
+另注：hook 的去重状态文件 `<仓库>/.claude/explain-commit.state` 里存的是 sha，不含 skill 名，改名无需清理。
+
 ## 文件清单
 
 ```
@@ -159,13 +173,13 @@ explain-c-module-plugin/
 │   ├── plugin.json        # 插件清单
 │   └── marketplace.json   # marketplace 目录（单插件仓库专用）
 ├── skills/
-│   └── explain-c-module/  # 讲解方法论（纯指令型 skill，v2.1）
+│   └── explain-c-module/  # 讲解方法论（纯指令型 skill，v2.2）
 │       ├── SKILL.md
 │       └── references/    # 3 个模板/清单
 ├── hooks/
 │   └── hooks.json         # hook 注册（安装后自动合并进 hooks 体系）
 └── scripts/
-    └── explain-commit.cjs # hook 脚本（commit 滀测 + 大提交守卫）
+    └── explain-commit.cjs # hook 脚本（commit 检测 + sha 去重 + 大提交守卫）
 ```
 
 ## License

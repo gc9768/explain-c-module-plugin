@@ -1,7 +1,7 @@
 ---
 name: explain-c-module
 description: "面向初级嵌入式工程师的代码讲解：读取一个新实现的 C 模块（文件或目录），生成中文学习文档，讲清'为什么这样写'，提炼涉及的嵌入式/RTOS/CMake 知识点。输出到 doc/explain/md/（源）与 doc/explain/html/（交互图文阅读版：Mermaid 图表+折叠面板+真实日志实例）。/explain-c-module <文件或目录> 触发。"
-version: "2.0.0"
+version: "2.2.0"
 user-invocable: true
 argument-hint: "[文件或目录路径，缺省=当前目录]"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
@@ -46,10 +46,10 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 - **读者画像**：懂一些 C 基础语法，但对**高级语法、软件架构、嵌入式底层**等深层知识不熟。
   所有关键处补"为什么"，而不是默认他懂。
   - 软件架构 = 模块如何分层组织（谁调谁、边界在哪、回调/事件机制怎么串起来）；
-    具体到本工程即 LVGL 页面栈、UI manager 状态机、stream 框架的源→过滤→目的管线。
+    典型如任务/页面分层、事件或回调驱动的状态机、数据管线（源→过滤→目的）。
   - 高级语法 = checklist 第 9 镜头扫描的函数指针、`__attribute__`、`container_of`、
     指派初始化、`do{}while(0)` 宏家族等"会让人愣住"的 C 构造。
-  - 嵌入式底层 = 前 8 个镜头（MMIO/中断/RTOS/位操作/外设/内存链接/时钟/CMake）。
+  - 嵌入式底层 = 前 8 个镜头（MMIO/中断/RTOS/位操作/外设/内存链接/时钟/构建系统）。
 - **术语白话化**：每个术语第一次出现给一句白话 + 类比。
   - 寄存器 = 一排开关；内存映射 I/O = 把开关钉在内存地址上读写。
   - 中断 = 电话铃，响了你得停下手头活去接；ISR = 接电话的那段代码。
@@ -72,19 +72,21 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ### Step 1 — 解析目标
 
 - 参数是 **文件**（`.c` / `.h`）：讲解该文件；顺带读它 `#include` 的同目录头文件。
-- 参数是 **目录**：`Glob` 其下 `**/*.c` 与 `**/*.h`；再找最近的 `CMakeLists.txt`
-  （或 `SConscript` / `Kconfig`）了解它怎么被构建。
+- 参数是 **目录**：`Glob` 其下 `**/*.c` 与 `**/*.h`；再找最近的构建脚本了解它怎么被构建：
+  `CMakeLists.txt` / `SConscript` / `Kconfig` / `Makefile` / IDE 工程
+  （`*.uvprojx` Keil、`*.ewp` IAR、`*.cdkproj` CDK 等）。都没有则跳过构建维度。
 - **找不到任何 `.c` / `.h`**：友好报错 "在 `<path>` 没找到 C 源文件"，停。不生成空文档。
 
 ### Step 2 — 上下文探测（只为"针对性讲解"，不命中就跳过该维度）
 
-用 `Grep` / 读头文件快速判断。命中结果记在心里，Step 5 讲解时用上（尤其 CMake 构建维度）：
+用 `Grep` / 读头文件快速判断。命中结果记在心里，Step 5 讲解时用上（尤其构建系统维度）：
 
 - **RTOS**：`FreeRTOS.h` / `task.h` · `rtthread.h` · `#include <zephyr/...>` · `nuttx/...`
 - **MCU 厂商**：`hpm_` · `stm32`/`stm32fXxx.h` · `gd32` · `ch32` · `nrf`/`nordic` · `esp_` 等
-- **构建信息**（看最近 `CMakeLists.txt`）：`add_library` / `add_executable` 的 target 名、
-  `target_include_directories`、`target_link_libraries`、编译选项（`-O`、`-g`、
-  `-ffunction-sections`、`--gc-sections`）
+- **构建信息**（看最近的构建脚本）：CMake 看 `add_library` / `add_executable` 的 target 名、
+  `target_include_directories`、`target_link_libraries`；Makefile 看 target 与 `CFLAGS`
+  （`-O`、`-g`、`-ffunction-sections`、`--gc-sections`）；IDE 工程（Keil/IAR/CDK）看
+  分组、预处理宏、链接脚本（如 `*.ld`）——嵌入式里 IDE 工程很常见，别只认 CMake。
 
 ### Step 3 — 确定模块名与输出路径
 
@@ -147,7 +149,7 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ```
 /explain-c-module              # 讲解当前目录的模块
 /explain-c-module src/drivers/uart.c    # 讲解单个文件
-/explain-c-module src/drivers/          # 讲解整个目录（含其 CMakeLists.txt 上下文）
+/explain-c-module src/drivers/          # 讲解整个目录（含构建脚本上下文）
 /explain-c-module --help       # 打印用法
 ```
 

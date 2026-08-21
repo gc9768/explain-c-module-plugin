@@ -58,14 +58,18 @@ Step 2 探测 / Step 5 讲解时，用下面这些"镜头"逐条扫源码。**�
 - **讲**：任务/线程、信号量 / 互斥量 / 队列各自的用途与区别、优先级与优先级反转、
   阻塞 vs 轮询、任务栈大小为什么重要（栈溢出是最常见的隐性崩溃）、临界区与上下文切换的代价。
 
-## 8. 构建系统 (CMake)
+## 8. 构建系统（CMake / Makefile / IDE 工程）
 
-- **扫描**（看最近的 `CMakeLists.txt`）：`add_library` / `add_executable`、
-  `target_include_directories`、`target_link_libraries`、`target_compile_options`、
-  `-ffunction-sections -fdata-sections`、`--gc-sections`、`INTERFACE` / `ALIAS` 库。
+- **扫描**（看最近的构建脚本）：
+  - CMake：`add_library` / `add_executable`、`target_include_directories`、
+    `target_link_libraries`、`target_compile_options`、`-ffunction-sections -fdata-sections`、
+    `--gc-sections`、`INTERFACE` / `ALIAS` 库。
+  - Makefile：target / `CFLAGS` / `LDFLAGS`、`$(OBJ)` 规则。
+  - IDE 工程（嵌入式常见）：Keil `*.uvprojx`、IAR `*.ewp`、CDK `*.cdkproj` 的文件分组、
+    预处理宏定义、链接脚本 `*.ld`、后处理脚本（如合并 bin/打 pin 表）。
 - **讲**：这个模块属于哪个 target、include 路径从哪来、链接了哪些库、
   `-ffunction-sections` + `--gc-sections` 为什么用（裁掉没被调用的代码、省 Flash）、
-  这个模块如何被编进最终固件。
+  这个模块如何被编进最终固件。IDE 工程要提"改构建配置必须走 IDE 重编"这类约束。
 
 ## 9. C 语言细节与生僻语法（对初学者）
 
