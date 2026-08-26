@@ -1,0 +1,35 @@
+{
+  "name": "explain-c-module",
+  "version": "2.2.0",
+  "description": "面向初级嵌入式工程师分析 C/C++ 模块，生成中文 Markdown 和 HTML 学习文档，说明调用链、RTOS、驱动、内存和硬件知识。",
+  "author": {
+    "name": "gc9768",
+    "url": "https://github.com/gc9768"
+  },
+  "repository": "https://github.com/gc9768/explain-c-module-plugin",
+  "license": "MIT",
+  "keywords": [
+    "embedded",
+    "c",
+    "rtos",
+    "documentation",
+    "code-analysis"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Explain C Module",
+    "shortDescription": "生成嵌入式 C 模块中文学习文档",
+    "longDescription": "分析 C/C++ 嵌入式模块的职责、调用链、线程、中断、资源生命周期和硬件知识，并生成 Markdown 与 HTML 文档。",
+    "developerName": "gc9768",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Code Analysis",
+      "Documentation"
+    ],
+    "defaultPrompt": [
+      "用 explain-c-module 讲解这个 C 模块",
+      "分析这个嵌入式目录的调用链和 RTOS 知识",
+      "生成该驱动模块的中文 Markdown 和 HTML 文档"
+    ]
+  }
+}

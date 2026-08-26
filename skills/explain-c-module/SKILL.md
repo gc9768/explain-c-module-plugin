@@ -1,6 +1,6 @@
 ---
 name: explain-c-module
-description: "面向初级嵌入式工程师的代码讲解：读取一个新实现的 C 模块（文件或目录），生成中文学习文档，讲清'为什么这样写'，提炼涉及的嵌入式/RTOS/CMake 知识点。输出到 doc/explain/md/（源）与 doc/explain/html/（交互图文阅读版：Mermaid 图表+折叠面板+真实日志实例）。/explain-c-module <文件或目录> 触发。"
+description: "面向初级嵌入式工程师的代码讲解：读取一个新实现的 C 模块（文件或目录），生成中文学习文档，讲清'为什么这样写'，提炼涉及的嵌入式/RTOS/CMake 知识点。输出到 doc/explain/md/（源）与 doc/explain/html/（交互图文阅读版：Mermaid 图表+折叠面板+真实日志实例）。Claude Code 可用 /explain-c-module 触发，Codex 等 Agent 可在对话中按 skill 名调用。"
 version: "2.2.0"
 user-invocable: true
 argument-hint: "[文件或目录路径，缺省=当前目录]"
@@ -40,6 +40,12 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 
 
 > 本 skill 纯指令型，无任何外部脚本/依赖。所有"怎么做"都在这里和 `references/` 里。
+
+> **跨 Agent 说明**：本 skill 的讲解方法可在 Claude Code、Codex、Cursor 等支持
+> `SKILL.md` 的 Agent 中复用。Claude Code 的 `hooks/hooks.json` 和
+> `scripts/explain-commit.cjs` 仅负责 Claude 的 `git commit` 自动触发；其他 Agent
+> 使用本 skill 时应由用户手动指定目标文件或目录。读取参考资料时，使用本文件所在
+> 目录下的 `references/`，不要依赖 `${CLAUDE_SKILL_DIR}` 等宿主专用变量。
 
 ## 风格铁律（贯穿所有输出，每一条都重要）
 
@@ -103,9 +109,9 @@ allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 
 `Read` 这三个文件，按它们的指引生成文档：
 
-- `${CLAUDE_SKILL_DIR}/references/doc-template.md`（MD 输出的 8 节结构）
-- `${CLAUDE_SKILL_DIR}/references/html-template.md`（HTML 阅读版骨架：高亮、⚠️ 框、目录）
-- `${CLAUDE_SKILL_DIR}/references/knowledge-checklist.md`（9 个知识点"镜头"）
+- 本文件所在目录下的 `references/doc-template.md`（MD 输出的 8 节结构）
+- 本文件所在目录下的 `references/html-template.md`（HTML 阅读版骨架：高亮、⚠️ 框、目录）
+- 本文件所在目录下的 `references/knowledge-checklist.md`（9 个知识点"镜头"）
 
 ### Step 5 — 读代码并生成文档（MD + HTML 两份）
 

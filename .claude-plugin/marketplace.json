@@ -1,6 +1,6 @@
 {
   "name": "explain-c-module-market",
-  "description": "嵌入式 C 代码讲解插件：commit 触碰 C 源码后自动生成中文学习文档（MD+HTML）",
+  "description": "嵌入式 C 代码讲解插件：Claude Code 支持 commit 后自动生成中文学习文档；Codex 等 Agent 支持手动调用 skill 生成 MD+HTML。",
   "owner": {
     "name": "gc9768",
     "url": "https://github.com/gc9768"
@@ -9,7 +9,7 @@
     {
       "name": "explain-c-module",
       "source": "./",
-      "description": "git commit 触碰 C 源码 → 自动生成中文讲解文档（嵌入式向）"
+      "description": "Claude Code 可由 git commit 自动触发；Codex 等 Agent 手动调用 explain-c-module skill 生成中文讲解文档"
     }
   ]
 }

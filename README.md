@@ -75,7 +75,9 @@ git clone https://gitee.com/gc9768/explain-c-module-plugin
 
 ### 方式三：其他 agent（Codex / Cursor / OpenCode 等）
 
-本 skill 符合 [agentskills.io](https://agentskills.io) 开放标准（SKILL.md 格式），可跨工具使用，但**自动触发 hook 是 Claude Code 独有机制**——其他 agent 只有手动触发。
+本 skill 符合 [agentskills.io](https://agentskills.io) 开放标准（SKILL.md 格式），可跨工具使用。
+仓库同时包含 `.codex-plugin/plugin.json`，可作为 Codex plugin 的源目录；但
+`git commit` 自动触发的 hook 仍是 Claude Code 专用机制，其他 Agent 使用手动触发。
 
 ```bash
 # Codex：拷贝 skill 到其加载目录，新开会话自动加载
@@ -84,14 +86,18 @@ mkdir -p ~/.codex/skills
 cp -r explain-c-module-plugin/skills/explain-c-module ~/.codex/skills/
 
 # 之后在对话中直接说："用 explain-c-module 讲解 xxx 目录"
+
+# 如果使用 Codex plugin 工作流，则保留仓库根目录的 .codex-plugin/plugin.json，
+# 通过 Codex 的本地 plugin/marketplace 安装流程安装；不要使用 Claude 的
+# /plugin marketplace add 或 .claude-plugin/marketplace.json 作为 Codex manifest。
 ```
 
-| 能力 | Claude Code（插件） | 其他 agent（纯 skill） |
-|---|---|---|
-| 手动触发讲解 | ✅ `/explain-c-module` | ✅ 对话中说 skill 名 |
-| commit 自动触发 | ✅ hook 注入 | ❌ hook 机制各异，未内置 |
-| 大提交守卫 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） |
-| sha 去重 | ✅ 同一 HEAD 只讲一次 | — |
+| 能力 | Claude Code（插件） | Codex（插件/skill） | 其他 agent（纯 skill） |
+|---|---|---|---|
+| 手动触发讲解 | ✅ `/explain-c-module` | ✅ 对话中说 skill 名 | ✅ 对话中说 skill 名 |
+| commit 自动触发 | ✅ hook 注入 | ❌ 当前未内置 Codex hook | ❌ hook 机制各异，未内置 |
+| 大提交守卫 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） | —（无自动触发即无此问题） |
+| sha 去重 | ✅ 同一 HEAD 只讲一次 | — | — |
 
 ### 依赖
 
@@ -158,7 +164,7 @@ skill 与 hook 是松耦合文本契约，改名需同步 **5 处**：
 1. `skills/explain-c-module/` 目录名
 2. `SKILL.md` frontmatter `name:`（解析主键）
 3. `SKILL.md` 正文标题、description、用法示例
-4. `hooks/hooks.json` 的 description（仅注释，但建议同步）
+4. `hooks/hooks.json` 的 description（Claude 专用 hook，建议同步）
 5. `scripts/explain-commit.cjs` 注入文本中的 skill 名引用（**漏掉即静默失效**，commit 后不再自动讲解，无任何报错）
 
 验证：`grep -ri "旧名" 插件目录` 应只剩 `doc/explain/` 输出路径（产物目录不改，改了孤儿化历史文档）。
@@ -169,6 +175,8 @@ skill 与 hook 是松耦合文本契约，改名需同步 **5 处**：
 
 ```
 explain-c-module-plugin/
+├── .codex-plugin/
+│   └── plugin.json         # Codex 插件清单
 ├── .claude-plugin/
 │   ├── plugin.json        # 插件清单
 │   └── marketplace.json   # marketplace 目录（单插件仓库专用）
