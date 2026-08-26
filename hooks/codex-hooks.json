@@ -1,0 +1,18 @@
+{
+  "description": "Codex PostToolUse hook: after a successful git commit touching C/C++ files, inject an explain-c-module task",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"<EXPLAIN_C_MODULE_PLUGIN_ROOT>/scripts/explain-commit-codex.cjs\"",
+            "timeout": 15,
+            "statusMessage": "Checking committed C/C++ files for explain-c-module..."
+          }
+        ]
+      }
+    ]
+  }
+}

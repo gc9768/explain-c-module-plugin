@@ -1,6 +1,6 @@
 # explain-c-module 插件
 
-**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.2）。
+**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.2）。支持 Claude Code 原生插件 Hook，也支持 Codex 的全局 `PostToolUse` Hook 适配。
 
 不止"做了什么"，更讲清**为什么这样写**——引用**真实工程证据**，配 **Mermaid 图表**，附**生僻语法小课堂**。
 
@@ -95,9 +95,22 @@ cp -r explain-c-module-plugin/skills/explain-c-module ~/.codex/skills/
 | 能力 | Claude Code（插件） | Codex（插件/skill） | 其他 agent（纯 skill） |
 |---|---|---|---|
 | 手动触发讲解 | ✅ `/explain-c-module` | ✅ 对话中说 skill 名 | ✅ 对话中说 skill 名 |
-| commit 自动触发 | ✅ hook 注入 | ❌ 当前未内置 Codex hook | ❌ hook 机制各异，未内置 |
-| 大提交守卫 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） | —（无自动触发即无此问题） |
-| sha 去重 | ✅ 同一 HEAD 只讲一次 | — | — |
+| commit 自动触发 | ✅ hook 注入 | ✅ 可选全局 PostToolUse 适配 | ❌ hook 机制各异，未内置 |
+| 大提交守卫 | ✅ MAX_C_FILES=30 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） |
+| sha 去重 | ✅ 同一 HEAD 只讲一次 | ✅ 同一 HEAD 只讲一次 | — |
+
+### Codex Hook 适配（可选）
+
+Codex 支持全局 `PreToolUse` / `PostToolUse` Hook，但插件清单目前不能直接声明并自动注册插件 Hook。因此本仓库提供“插件脚本 + 配置合并器”适配层：
+
+```bash
+# 在 Codex 中明确执行一次；会把本插件的 PostToolUse(Bash) 条目合并到 ~/.codex/hooks.json
+node /path/to/explain-c-module-plugin/scripts/install-codex-hook.cjs
+```
+
+也可以手动把 [`hooks/codex-hooks.json`](hooks/codex-hooks.json) 的 `PostToolUse` 条目合并到 `~/.codex/hooks.json`，并将 `<EXPLAIN_C_MODULE_PLUGIN_ROOT>` 替换为插件绝对路径。安装后需新开 Codex 会话（或按当前版本要求重新加载配置）。该 Hook 只在成功的 `git commit` 触碰不超过 30 个 C/C++ 文件时注入上下文，状态写入仓库私有的 `.codex/explain-commit.state`，不会阻断提交。
+
+这不是 Claude `hooks/hooks.json` 的直接复用：Claude 使用 `${CLAUDE_PLUGIN_ROOT}` 和 Claude 专用上下文协议；Codex 使用 `~/.codex/hooks.json`、`tool_name/tool_input/tool_output` 输入字段。两套脚本并存，互不覆盖。若团队不希望修改全局 Codex 配置，则继续手动调用 skill 即可。
 
 ### 依赖
 
@@ -185,9 +198,12 @@ explain-c-module-plugin/
 │       ├── SKILL.md
 │       └── references/    # 3 个模板/清单
 ├── hooks/
-│   └── hooks.json         # hook 注册（安装后自动合并进 hooks 体系）
+│   ├── hooks.json         # Claude Code hook 注册
+│   └── codex-hooks.json   # Codex hook 配置模板（需合并到 ~/.codex/hooks.json）
 └── scripts/
-    └── explain-commit.cjs # hook 脚本（commit 检测 + sha 去重 + 大提交守卫）
+    ├── explain-commit.cjs        # Claude hook 脚本
+    ├── explain-commit-codex.cjs  # Codex PostToolUse 适配脚本
+    └── install-codex-hook.cjs    # 合并 Codex 全局 Hook 配置（显式执行）
 ```
 
 ## License
