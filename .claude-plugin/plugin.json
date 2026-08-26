@@ -1,11 +1,11 @@
 {
   "name": "explain-c-module",
   "displayName": "Explain C Module",
-  "version": "2.2.0",
-  "description": "面向初级嵌入式工程师的 C 模块讲解：git commit 触碰 C 源码后自动生成中文学习文档（MD+交互 HTML：Mermaid 图表+折叠面板+真实日志证据），讲清'为什么这样写'，提炼嵌入式/RTOS/CMake 知识点。",
+  "version": "2.3.0",
+  "description": "面向初级嵌入式工程师的 Embedded C/C++、RTOS、驱动、中断、DMA、低功耗和调用链分析：生成中文 Markdown 与交互 HTML 学习文档；git commit 后可自动触发。",
   "author": {
     "name": "gc9768"
   },
   "license": "MIT",
-  "keywords": ["embedded", "c", "documentation", "education", "code-review"]
+  "keywords": ["embedded", "c", "c-plus-plus", "firmware", "rtos", "driver-analysis", "interrupts", "dma", "low-power", "call-graph", "documentation", "code-analysis", "嵌入式", "驱动", "低功耗"]
 }

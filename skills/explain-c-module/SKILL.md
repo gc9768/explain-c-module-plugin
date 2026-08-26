@@ -1,10 +1,11 @@
 ---
 name: explain-c-module
-description: "面向初级嵌入式工程师的代码讲解：读取一个新实现的 C 模块（文件或目录），生成中文学习文档，讲清'为什么这样写'，提炼涉及的嵌入式/RTOS/CMake 知识点。输出到 doc/explain/md/（源）与 doc/explain/html/（交互图文阅读版：Mermaid 图表+折叠面板+真实日志实例）。Claude Code 可用 /explain-c-module 触发，Codex 等 Agent 可在对话中按 skill 名调用。"
-version: "2.2.0"
-user-invocable: true
-argument-hint: "[文件或目录路径，缺省=当前目录]"
+description: "分析 C/C++、Embedded C、RTOS 任务、驱动、中断、ISR、DMA、低功耗和调用链，生成中文 Markdown 与交互式 HTML 学习文档，讲清为什么这样写。用户说解释 C 文件、分析驱动、梳理调用链、讲解 RTOS 模块、分析低功耗实现或生成代码架构文档时使用。Claude Code 可用 /explain-c-module 触发，Codex 等 Agent 可按 skill 名调用。"
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
+metadata:
+  version: "2.3.0"
+  user-invocable: "true"
+  argument-hint: "[文件或目录路径，缺省=当前目录]"
 ---
 
 # /explain-c-module — 嵌入式代码讲解（面向初级工程师）

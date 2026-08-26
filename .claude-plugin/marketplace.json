@@ -1,6 +1,6 @@
 {
   "name": "explain-c-module-market",
-  "description": "嵌入式 C 代码讲解插件：Claude Code 支持 commit 后自动生成中文学习文档；Codex 等 Agent 支持手动调用 skill 生成 MD+HTML。",
+  "description": "Embedded C/C++、RTOS、驱动、中断、DMA、低功耗和调用链分析插件：Claude Code 支持 commit 后自动生成中文学习文档；Codex 支持手动 skill 与可选 PostToolUse Hook。",
   "owner": {
     "name": "gc9768",
     "url": "https://github.com/gc9768"
@@ -9,7 +9,7 @@
     {
       "name": "explain-c-module",
       "source": "./",
-      "description": "Claude Code 可由 git commit 自动触发；Codex 等 Agent 手动调用 explain-c-module skill 生成中文讲解文档"
+      "description": "分析 Embedded C/C++、RTOS、驱动、中断、DMA、低功耗和调用链，生成 Markdown+HTML 中文讲解文档；Claude 可自动触发，Codex 可手动或通过 Hook 触发"
     }
   ]
 }

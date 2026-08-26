@@ -1,7 +1,7 @@
 {
   "name": "explain-c-module",
-  "version": "2.2.0",
-  "description": "面向初级嵌入式工程师分析 C/C++ 模块，生成中文 Markdown 和 HTML 学习文档，说明调用链、RTOS、驱动、内存和硬件知识。",
+  "version": "2.3.0",
+  "description": "Explain embedded C/C++ modules, RTOS tasks, drivers, interrupts, DMA, low-power code and call chains; generate Chinese Markdown and interactive HTML learning documentation.",
   "author": {
     "name": "gc9768",
     "url": "https://github.com/gc9768"
@@ -11,24 +11,39 @@
   "keywords": [
     "embedded",
     "c",
+    "c-plus-plus",
+    "firmware",
     "rtos",
+    "driver-analysis",
+    "interrupts",
+    "dma",
+    "low-power",
+    "call-graph",
     "documentation",
-    "code-analysis"
+    "code-analysis",
+    "嵌入式代码分析",
+    "C语言学习",
+    "驱动讲解",
+    "低功耗分析"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Explain C Module",
-    "shortDescription": "生成嵌入式 C 模块中文学习文档",
-    "longDescription": "分析 C/C++ 嵌入式模块的职责、调用链、线程、中断、资源生命周期和硬件知识，并生成 Markdown 与 HTML 文档。",
+    "shortDescription": "分析 Embedded C、RTOS 和驱动并生成学习文档",
+    "longDescription": "Explain C/C++ embedded modules, RTOS tasks, drivers, interrupts, DMA, low-power paths, call graphs, resource lifecycles and hardware concepts; generate Chinese Markdown and interactive HTML documentation.",
     "developerName": "gc9768",
     "category": "Developer Tools",
     "capabilities": [
       "Code Analysis",
-      "Documentation"
+      "Documentation",
+      "Embedded Systems",
+      "RTOS Analysis",
+      "Driver Analysis"
     ],
     "defaultPrompt": [
       "用 explain-c-module 讲解这个 C 模块",
       "分析这个嵌入式目录的调用链和 RTOS 知识",
+      "分析这个 C 驱动、中断、DMA 或低功耗实现",
       "生成该驱动模块的中文 Markdown 和 HTML 文档"
     ]
   }

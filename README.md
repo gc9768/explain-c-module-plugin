@@ -1,14 +1,18 @@
 # explain-c-module 插件
 
-**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.2）。支持 Claude Code 原生插件 Hook，也支持 Codex 的全局 `PostToolUse` Hook 适配。
+**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.3）。支持 Claude Code 原生插件 Hook，也支持 Codex 的全局 `PostToolUse` Hook 适配。
 
 不止"做了什么"，更讲清**为什么这样写**——引用**真实工程证据**，配 **Mermaid 图表**，附**生僻语法小课堂**。
+
+English summary: **Explain embedded C/C++ modules, RTOS tasks, drivers, interrupts, DMA, low-power paths and call graphs; generate Chinese Markdown and interactive HTML documentation.**
+
+适合搜索的关键词：`embedded C`、`firmware analysis`、`RTOS task`、`driver analysis`、`interrupt/ISR`、`DMA`、`low-power`、`call graph`、`C 代码讲解`、`嵌入式驱动分析`、`低功耗代码分析`。
 
 ## 它解决什么问题
 
 AI 时代初级工程师常能"看懂每行代码"，却缺乏"手把手开发"才能积累的底层直觉。这个插件在每次 commit C 代码后，自动让 Claude 讲透新实现的模块。
 
-## v2.2 质量铁律（为什么生成的文档值得读）
+## v2.3 质量铁律（为什么生成的文档值得读）
 
 1. **实例优先，三级递降**：工程真实日志证据 → 行业经典案例 → 构造最小示例；禁止只讲抽象结论
 2. **每函数至少一图或一表**：时序图/状态图/流程图按内容选型；MD 用 ASCII，HTML 用 Mermaid 交互版
@@ -131,7 +135,7 @@ git commit -m "feat: 摄像头预览优化"
 
 **大提交守卫**：单次 commit 触碰 >30 个 C/H 文件时静默跳过。这防止 `git init && git add . && git commit` 导入存量大代码库时触发几百份讲解文档——那不是"新写的代码"，不在 skill 服务范围内。阈值在 `scripts/explain-commit.cjs` 顶部 `MAX_C_FILES` 可调。
 
-**sha 去重**（v2.2）：同一 HEAD 只注入一次讲解指令，已讲解的 sha 记在 `<仓库>/.claude/explain-commit.state`（建议把 `.claude/` 加入 `.gitignore`）。防的是：命令文本里恰好含 "git commit" 字样的 echo/grep/cat（没有真的 commit）反复误触发，对同一个旧提交一遍遍讲解。
+**sha 去重**（v2.3）：同一 HEAD 只注入一次讲解指令，已讲解的 sha 记在 `<仓库>/.claude/explain-commit.state`（建议把 `.claude/` 加入 `.gitignore`）。防的是：命令文本里恰好含 "git commit" 字样的 echo/grep/cat（没有真的 commit）反复误触发，对同一个旧提交一遍遍讲解。
 
 ### 手动触发
 
@@ -143,6 +147,20 @@ git commit -m "feat: 摄像头预览优化"
 
 > 注意：插件 skill 的调用名带命名空间，可能显示为 `explain-c-module:explain-c-module`，以 `/` 前缀补全列表实际显示为准。
 
+### 常见自然语言触发方式
+
+不必记住命令名，以下说法都适合作为 skill 请求：
+
+```text
+解释这个 C 文件的调用链和线程关系
+分析这个 RTOS 任务为什么这样设计
+讲解这个驱动的中断、DMA 和资源生命周期
+分析这个嵌入式工程的低功耗睡眠与唤醒流程
+生成这个 C 模块的中文 Markdown 和 HTML 架构文档
+```
+
+英文也可以直接使用：`Explain this embedded C module`、`Analyze this RTOS driver`、`Trace the call graph and low-power wakeup path`。
+
 ## 产物
 
 | 文件 | README 说明（详见模板） |
@@ -152,7 +170,7 @@ git commit -m "feat: 摄像头预览优化"
 
 ### 生成效果示例
 
-以一个 IPC 摄像头工程的 `ipc_record.c`（录像/回放模块）为例，v2.2 生成的文档包含：
+以一个 IPC 摄像头工程的 `ipc_record.c`（录像/回放模块）为例，v2.3 生成的文档包含：
 
 - **5 段真实工程证据**（带来源标注的崩溃断言、心跳日志、时间线）
 - **4 张 Mermaid 图**（数据流/竞态崩溃时序/录像状态机/回放切换时序）
@@ -194,9 +212,11 @@ explain-c-module-plugin/
 │   ├── plugin.json        # 插件清单
 │   └── marketplace.json   # marketplace 目录（单插件仓库专用）
 ├── skills/
-│   └── explain-c-module/  # 讲解方法论（纯指令型 skill，v2.2）
+│   └── explain-c-module/  # 讲解方法论（纯指令型 skill，v2.3）
 │       ├── SKILL.md
 │       └── references/    # 3 个模板/清单
+├── examples/
+│   └── README.md           # Embedded C、RTOS、驱动、低功耗示例提示词
 ├── hooks/
 │   ├── hooks.json         # Claude Code hook 注册
 │   └── codex-hooks.json   # Codex hook 配置模板（需合并到 ~/.codex/hooks.json）

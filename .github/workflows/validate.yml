@@ -1,0 +1,26 @@
+name: Validate plugin
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate JSON manifests and hook config
+        run: |
+          python -m json.tool .codex-plugin/plugin.json >/dev/null
+          python -m json.tool .claude-plugin/plugin.json >/dev/null
+          python -m json.tool .claude-plugin/marketplace.json >/dev/null
+          python -m json.tool hooks/hooks.json >/dev/null
+          python -m json.tool hooks/codex-hooks.json >/dev/null
+      - name: Check hook scripts
+        run: |
+          node --check scripts/explain-commit.cjs
+          node --check scripts/explain-commit-codex.cjs
+          node --check scripts/install-codex-hook.cjs
