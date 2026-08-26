@@ -145,7 +145,8 @@ function main() {
     list +
     '\n\n请立即调用 explain-c-module skill 为这些文件生成中文讲解文档（输出到 doc/explain/）。' +
     '建议按所在目录聚合讲解（explain-c-module 会自动读取同目录构建脚本 CMakeLists.txt/Makefile/IDE 工程作为上下文，避免重复）；' +
-    '若文件分散在不同目录则逐个讲解。完成后按 explain-c-module 的 Step 6 给出简短摘要与文档路径。' +
+    '若文件分散在不同目录则逐个讲解。生成文档后调用 review-explain-doc skill 或只读审核子 agent 做一次质量审核；最多修订 2 轮。' +
+    '完成后按 explain-c-module 的 Step 7 给出简短摘要、审核状态与文档路径。' +
     '若个别文件只是 trivial 改动（如仅改注释 / 宏值 / 空行），可跳过它并在回复中说明。';
 
   emit({

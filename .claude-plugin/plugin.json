@@ -2,7 +2,7 @@
   "name": "explain-c-module",
   "displayName": "Explain C Module",
   "version": "2.3.0",
-  "description": "面向初级嵌入式工程师的 Embedded C/C++、RTOS、驱动、中断、DMA、低功耗和调用链分析：生成中文 Markdown 与交互 HTML 学习文档；git commit 后可自动触发。",
+  "description": "面向初级嵌入式工程师的 Embedded C/C++、RTOS、驱动、中断、DMA、低功耗和调用链分析：生成并审核中文 Markdown 与交互 HTML 学习文档；git commit 后可自动触发。",
   "author": {
     "name": "gc9768"
   },

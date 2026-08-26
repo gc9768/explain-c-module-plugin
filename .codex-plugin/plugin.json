@@ -19,6 +19,8 @@
     "dma",
     "low-power",
     "call-graph",
+    "documentation-review",
+    "quality-gate",
     "documentation",
     "code-analysis",
     "嵌入式代码分析",
@@ -36,6 +38,7 @@
     "capabilities": [
       "Code Analysis",
       "Documentation",
+      "Documentation Review",
       "Embedded Systems",
       "RTOS Analysis",
       "Driver Analysis"

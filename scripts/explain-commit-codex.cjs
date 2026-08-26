@@ -52,7 +52,8 @@ function main() {
   const list = cFiles.map(f => `- ${f}`).join('\n');
   emit('[git-commit → explain-c-module 自动触发] 检测到一次成功的 git commit，本次提交修改了以下 C/C++ 源文件：\n' +
     list + '\n\n请立即调用 explain-c-module skill，为这些文件生成中文 Markdown 与 HTML 讲解文档（输出到 doc/explain/）。' +
-    '按 skill 的 Step 6 汇报摘要与文档路径；仅注释、宏值或空行等 trivial 改动可跳过并说明。');
+    '生成后调用 review-explain-doc skill 或只读审核子 agent 做一次质量审核，最多修订 2 轮；' +
+    '按 explain-c-module 的 Step 7 汇报摘要、审核状态与文档路径；仅注释、宏值或空行等 trivial 改动可跳过并说明。');
   try { fs.mkdirSync(path.dirname(stateFile), { recursive: true }); fs.writeFileSync(stateFile, sha + '\n'); } catch (_) { /* best effort */ }
 }
 

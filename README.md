@@ -168,6 +168,8 @@ git commit -m "feat: 摄像头预览优化"
 | `doc/explain/md/<模块名>.md` | 源文档（进 git 做 diff 评审；8+1 节结构） |
 | `doc/explain/html/<模块名>.html` | 交互阅读版（Mermaid 可缩放图表、`<details>` 折叠深挖面板、三色语义提示框、证据框、highlight.js 高亮） |
 
+生成后可调用 `review-explain-doc` 做只读质量审核，检查源码证据、调用链、图表语法、Markdown/HTML 一致性、路径/行号和硬件结论的不确定性。审核最多推动 2 轮修订；没有子 agent 时由主 agent 按清单自审，不修改源代码。
+
 ### 生成效果示例
 
 以一个 IPC 摄像头工程的 `ipc_record.c`（录像/回放模块）为例，v2.3 生成的文档包含：
@@ -212,9 +214,12 @@ explain-c-module-plugin/
 │   ├── plugin.json        # 插件清单
 │   └── marketplace.json   # marketplace 目录（单插件仓库专用）
 ├── skills/
-│   └── explain-c-module/  # 讲解方法论（纯指令型 skill，v2.3）
+│   ├── explain-c-module/  # 讲解方法论（纯指令型 skill，v2.3）
+│   │   ├── SKILL.md
+│   │   └── references/    # 3 个模板/清单
+│   └── review-explain-doc/ # 生成文档后的只读质量审核 skill
 │       ├── SKILL.md
-│       └── references/    # 3 个模板/清单
+│       └── references/review-checklist.md
 ├── examples/
 │   └── README.md           # Embedded C、RTOS、驱动、低功耗示例提示词
 ├── hooks/

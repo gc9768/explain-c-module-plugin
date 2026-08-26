@@ -140,12 +140,22 @@ metadata:
   - info/warn/success 三色提示框语义化使用（warn=危险坑，info=背景知识，success=验证通过标志）。
 - HTML 里代码用 highlight.js 做 C 高亮；⚠️ 标注用模板里的提示框样式；顶部放可折叠目录。
 
-### Step 6 — 回复用户（简短，别贴整篇文档）
+### Step 6 — 文档审核（推荐；有子 agent 时优先使用）
+
+文档生成后，优先调用 `review-explain-doc` skill 或启动一个只读审核子 agent，审核同一模块的 MD、HTML、源码和构建证据。审核子 agent 不得改源码、提交 Git 或删除文档，只输出 `PASS` / `NEEDS_REVISION`、评分和修订清单。
+
+- 最多进行 2 轮：主 agent 根据问题修订文档，再审核 1 次。
+- 若当前 Agent 不支持子 agent，主 agent 按 `review-explain-doc/references/review-checklist.md` 自审一次并在回复中标注“单 agent 自审”。
+- 只修复有证据支持的问题；不得为追求措辞偏好重写整篇文档。
+- 审核状态写入回复即可，不要额外生成会再次触发 Hook 的提交。
+
+### Step 7 — 回复用户（简短，别贴整篇文档）
 
 聊天里只给摘要：
 - 模块一句话功能
 - 命中了哪些知识点（bullet）
 - **引用到的真实实例数 / 图表数**（v2.0 质量指标，如"4 个日志实例、5 图 3 表"）
+- **审核状态**（PASS / NEEDS_REVISION；说明是否使用审核子 agent）
 - 延伸学习清单
 - 文档路径：`doc/explain/md/<模块名>.md`（源）+ `doc/explain/html/<模块名>.html`（交互阅读版）
 
