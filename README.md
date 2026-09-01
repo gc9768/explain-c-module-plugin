@@ -112,7 +112,15 @@ Codex 支持全局 `PreToolUse` / `PostToolUse` Hook，但插件清单目前不�
 node /path/to/explain-c-module-plugin/scripts/install-codex-hook.cjs
 ```
 
-也可以手动把 [`hooks/codex-hooks.json`](hooks/codex-hooks.json) 的 `PostToolUse` 条目合并到 `~/.codex/hooks.json`，并将 `<EXPLAIN_C_MODULE_PLUGIN_ROOT>` 替换为插件绝对路径。安装后需新开 Codex 会话（或按当前版本要求重新加载配置）。该 Hook 只在成功的 `git commit` 触碰不超过 30 个 C/C++ 文件时注入上下文，状态写入仓库私有的 `.codex/explain-commit.state`，不会阻断提交。
+安装器会把 Hook 脚本复制到 `~/.codex/hooks/explain-c-module/`，然后让
+`~/.codex/hooks.json` 指向这个稳定副本；安装完成后可以删除原始下载目录。
+重复运行会迁移旧版本的源码绝对路径并避免重复注册。卸载使用：
+
+```bash
+node /path/to/explain-c-module-plugin/scripts/install-codex-hook.cjs --uninstall
+```
+
+也可以手动把 [`hooks/codex-hooks.json`](hooks/codex-hooks.json) 的 `PostToolUse` 条目合并到 `~/.codex/hooks.json`，并将 `<EXPLAIN_C_MODULE_PLUGIN_ROOT>` 替换为插件绝对路径；这种手动方式仍会依赖插件目录，不适合安装后删除下载包。安装后需新开 Codex 会话（或按当前版本要求重新加载配置）。该 Hook 只在成功的 `git commit` 触碰不超过 30 个 C/C++ 文件时注入上下文，状态写入仓库私有的 `.codex/explain-commit.state`，不会阻断提交。
 
 这不是 Claude `hooks/hooks.json` 的直接复用：Claude 使用 `${CLAUDE_PLUGIN_ROOT}` 和 Claude 专用上下文协议；Codex 使用 `~/.codex/hooks.json`、`tool_name/tool_input/tool_output` 输入字段。两套脚本并存，互不覆盖。若团队不希望修改全局 Codex 配置，则继续手动调用 skill 即可。
 
