@@ -1,6 +1,6 @@
 # explain-c-module 插件
 
-**skill + hook 自动化工作流**：`git commit` 触碰 C 源码 → 自动生成面向初级嵌入式工程师的中文讲解文档（v2.3）。支持 Claude Code 原生插件 Hook，也支持 Codex 的全局 `PostToolUse` Hook 适配。
+**skill + hook 自动化工作流**：`git commit`、`git pull`/merge 或 rebase 触碰 C/C++ 源码 → 自动生成并审查面向初级嵌入式工程师的中文讲解文档（v2.3）。支持 Claude Code 原生插件 Hook、Codex 全局 `PostToolUse` Hook，以及仓库级 Git 更新 Hook。
 
 不止"做了什么"，更讲清**为什么这样写**——引用**真实工程证据**，配 **Mermaid 图表**，附**生僻语法小课堂**。
 
@@ -11,6 +11,8 @@ English summary: **Explain embedded C/C++ modules, RTOS tasks, drivers, interrup
 ## 它解决什么问题
 
 AI 时代初级工程师常能"看懂每行代码"，却缺乏"手把手开发"才能积累的底层直觉。这个插件在每次 commit C 代码后，自动让 Claude 讲透新实现的模块。
+
+安装 Git 更新 Hook 后，merge/rebase 也会触发同一套“增量生成 → 文档审查 → 修订复审”流程；纯文档变更会被过滤，避免自触发循环。
 
 ## v2.3 质量铁律（为什么生成的文档值得读）
 
@@ -41,6 +43,26 @@ Claude 解析指令 → 调用 explain-c-module skill
   ├─ doc/explain/md/<模块名>.md      （源文档）
   └─ doc/explain/html/<模块名>.html  （交互阅读版，Mermaid 图表 + highlight.js 高亮）
 ```
+
+### Git 更新后的自动闭环（可选）
+
+```bash
+# 在目标仓库根目录执行一次，保留已有 hook 内容
+node /path/to/explain-c-module-plugin/scripts/install-git-update-hook.cjs
+```
+
+安装器追加 `post-merge` 与 `post-rebase`，由 `scripts/explain-update.cjs` 检测
+所有 C/C++ 变化（单次最多 30 个文件）。检测到变化后调用
+`codex exec`，要求依次运行 `explain-c-module` 与 `review-explain-doc`，只修改文档，
+不提交 Git。试运行或暂停：
+
+```bash
+EXPLAIN_C_MODULE_UPDATE_DRY_RUN=1 node scripts/explain-update.cjs
+EXPLAIN_C_MODULE_UPDATE_ENABLED=0 git pull
+```
+
+该流程需要本机已登录 Codex CLI；Codex 不可用或任务失败时 hook 返回非零并输出错误，
+不会伪造“审核通过”。
 
 **核心设计**：hook 提供"时机 + 事实"（何时 commit、改了哪些文件），skill 提供"方法"（怎么讲），中间靠注入的自然语言指令衔接。hook 无法直接调用 skill——这是 Claude Code 的架构约束，也是职责分离的体现。
 
@@ -100,6 +122,7 @@ cp -r explain-c-module-plugin/skills/explain-c-module ~/.codex/skills/
 |---|---|---|---|
 | 手动触发讲解 | ✅ `/explain-c-module` | ✅ 对话中说 skill 名 | ✅ 对话中说 skill 名 |
 | commit 自动触发 | ✅ hook 注入 | ✅ 可选全局 PostToolUse 适配 | ❌ hook 机制各异，未内置 |
+| merge/rebase 自动生成+审查 | ✅ 仓库 Git Hook（显式安装） | ✅ 仓库 Git Hook（显式安装） | ❌ |
 | 大提交守卫 | ✅ MAX_C_FILES=30 | ✅ MAX_C_FILES=30 | —（无自动触发即无此问题） |
 | sha 去重 | ✅ 同一 HEAD 只讲一次 | ✅ 同一 HEAD 只讲一次 | — |
 
@@ -236,7 +259,9 @@ explain-c-module-plugin/
 └── scripts/
     ├── explain-commit.cjs        # Claude hook 脚本
     ├── explain-commit-codex.cjs  # Codex PostToolUse 适配脚本
-    └── install-codex-hook.cjs    # 合并 Codex 全局 Hook 配置（显式执行）
+    ├── install-codex-hook.cjs    # 合并 Codex 全局 Hook 配置（显式执行）
+    ├── explain-update.cjs       # merge/rebase 后增量生成+审查
+    └── install-git-update-hook.cjs # 安装 post-merge/post-rebase（显式执行）
 ```
 
 ## License
